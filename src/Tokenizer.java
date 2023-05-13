@@ -13,8 +13,7 @@ public class Tokenizer {
         if (paragraph != null) {
             List<String> paragraphTokens = tokenizeText(paragraph);
             tokensMap.put("paragraph", paragraphTokens);
-        }
-        else{
+        } else {
             tokensMap.put("paragraph", new ArrayList<>());
         }
 
@@ -23,8 +22,7 @@ public class Tokenizer {
         if (title != null) {
             List<String> titleTokens = tokenizeText(title);
             tokensMap.put("title", titleTokens);
-        }
-        else{
+        } else {
             tokensMap.put("title", new ArrayList<>());
         }
 
@@ -35,8 +33,7 @@ public class Tokenizer {
             if (headerValue != null) {
                 List<String> headerTokens = tokenizeText(headerValue);
                 tokensMap.put(headerKey, headerTokens);
-            }
-            else{
+            } else {
                 tokensMap.put(headerKey, new ArrayList<>());
             }
         }
@@ -48,14 +45,13 @@ public class Tokenizer {
             if (metaValue != null) {
                 List<String> metaTokens = tokenizeText(metaValue);
                 tokensMap.put(metaKey, metaTokens);
-            }
-            else{
+            } else {
                 tokensMap.put(metaKey, new ArrayList<>());
             }
         }
         // print the type of url
         String url = (String) input.get("url");
-        //don't tokenize the url
+        // don't tokenize the url
         List<String> urlTokens = new ArrayList<>();
         urlTokens.add(url);
         tokensMap.put("url", urlTokens);
@@ -71,8 +67,7 @@ public class Tokenizer {
             }
             tokensMap.put("link", linksTokens);
 
-        }
-        else{
+        } else {
             tokensMap.put("link", new ArrayList<>());
         }
         String images = (String) input.get("image");
@@ -86,8 +81,7 @@ public class Tokenizer {
             }
             tokensMap.put("image", imagesTokens);
 
-        }
-        else{
+        } else {
             tokensMap.put("image", new ArrayList<>());
         }
 

@@ -413,8 +413,9 @@ public class Indexer {
         connectToDatabase();
         // read the documents
         File[] files = new File("data").listFiles();
-
+        int count = 0;
         for (File file : files) {
+            System.out.println(count++);
             if (file.isFile()) {
                 if (file.isFile()) {
                     String url = file.getName();
@@ -441,6 +442,9 @@ public class Indexer {
                 }
 
             }
+            // delete the file after reading it
+            file.delete();
+
         }
         // score the documents, and save the score to the databasse
         scoreDocuments();
