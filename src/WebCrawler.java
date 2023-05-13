@@ -16,11 +16,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.URL;
 
-// FIXME: don't add the url to the crawledUrls set until it has been crawled and saved to the file 
-// TODO: keywords??
 public class WebCrawler implements Runnable {
 
-    private static final int MAX_URLS = 6000;
+    private static final int MAX_URLS = 7000;
     private static final int NUM_THREADS = 10;
 
     private final Queue<String> urlsToCrawl;
@@ -47,7 +45,6 @@ public class WebCrawler implements Runnable {
             String url;
             synchronized (lock) {
                 url = urlsToCrawl.poll();
-                crawledUrls.add(url);
             }
 
             try {
@@ -70,40 +67,40 @@ public class WebCrawler implements Runnable {
                         String htmlContent = contentBuilder.toString();
 
                         // save the HTML content to a file
-                        saveHtmlContentToFile(url, htmlContent, "data");
-                        // pass the file name and URL to the indexer
-                        // indexer.addToIndex(fileName, url);//TODO: we many need to uncomment this to
-                        // sync with the indexer
+                        Boolean isSaved = saveHtmlContentToFile(url, htmlContent, "data");
+                        if (isSaved) {
+                            crawledUrls.add(url);
 
-                        synchronized (lock) {
-                            // update the output file with the crawled URLs
-                            File file = new File(outputFile);
-                            file.delete();
-                            file.createNewFile();
-                            try (BufferedWriter writer = new BufferedWriter(
-                                    new FileWriter(outputFile, true))) {
-                                for (String s : crawledUrls) {
-                                    writer.write(s);
-                                    writer.newLine();
-                                }
-                            }
-                        }
-
-                        synchronized (lock) {
-                            // update the seed file with the remaining URLs to crawl
-                            File file = new File(seedFile);
-                            file.delete();
-                            file.createNewFile();
-                            try (BufferedWriter writer = new BufferedWriter(new FileWriter(seedFile, true))) {
-                                //add only the first 1000 urls to the seed file
-                                int count = 0;
-                                for (String s : urlsToCrawl) {
-                                    if (count < 6000) {
+                            synchronized (lock) {
+                                // update the output file with the crawled URLs
+                                File file = new File(outputFile);
+                                file.delete();
+                                file.createNewFile();
+                                try (BufferedWriter writer = new BufferedWriter(
+                                        new FileWriter(outputFile, true))) {
+                                    for (String s : crawledUrls) {
                                         writer.write(s);
                                         writer.newLine();
-                                        count++;
-                                    } else {
-                                        break;
+                                    }
+                                }
+                            }
+
+                            synchronized (lock) {
+                                // update the seed file with the remaining URLs to crawl
+                                File file = new File(seedFile);
+                                file.delete();
+                                file.createNewFile();
+                                try (BufferedWriter writer = new BufferedWriter(new FileWriter(seedFile, true))) {
+                                    // add only the first 1000 urls to the seed file
+                                    int count = 0;
+                                    for (String s : urlsToCrawl) {
+                                        if (count < 6000) {
+                                            writer.write(s);
+                                            writer.newLine();
+                                            count++;
+                                        } else {
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -118,7 +115,8 @@ public class WebCrawler implements Runnable {
         }
     }
 
-    private static void saveHtmlContentToFile(String url, String htmlContent, String folderPath) {
+    private static Boolean saveHtmlContentToFile(String url, String htmlContent, String folderPath) {
+
         try {
             URL urlObject = new URL(url);
             String fileName = urlObject.getHost() + urlObject.getPath();
@@ -150,9 +148,12 @@ public class WebCrawler implements Runnable {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(htmlContent);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     private boolean isUrlAllowedByRobots(String url) throws IOException {

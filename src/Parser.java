@@ -28,8 +28,9 @@ import java.util.Map;
  */
 
 public class Parser {
-    //  parseDocument with url and content. Append the parsed document to an existing Map
-    public static void parseDocument(String url , String content, Map<String, Object> documentMap) {
+    // parseDocument with url and content. Append the parsed document to an existing
+    // Map
+    public static void parseDocument(String url, String content, Map<String, Object> documentMap) {
         if (documentMap == null) {
             documentMap = new HashMap<>();
         }
@@ -63,14 +64,14 @@ public class Parser {
                 documentMap.put("paragraph", paragraphText);
             }
         }
-        //url 
+        // url
         url = url.replace(".html", "").replace("%20", " ").replace("%3F", "?").replace("%2F", "/")
-                     .replace("%5C", "\\").replace("%7C", "|").replace("%3C", "<").replace("%3E", ">")
-                     .replace("%3A", ":").replace("%2A", "*").replace("%22", "\"").replace("_", "/");
+                .replace("%5C", "\\").replace("%7C", "|").replace("%3C", "<").replace("%3E", ">")
+                .replace("%3A", ":").replace("%2A", "*").replace("%22", "\"").replace("_", "/");
 
         documentMap.put("url", url);
-        //tags form meta
-        Elements metaTags = doc.select("meta");
+        // tags form meta (keywords)
+        Elements metaTags = doc.select("meta[name=keywords]");
         for (Element metaTag : metaTags) {
             String metaTagText = metaTag.attr("content");
             if (documentMap.containsKey("meta")) {
@@ -79,7 +80,8 @@ public class Parser {
                 documentMap.put("meta", metaTagText);
             }
         }
-        //images
+
+        // images
         Elements images = doc.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
         for (Element image : images) {
             String imageUrl = image.attr("src");
@@ -89,7 +91,7 @@ public class Parser {
                 documentMap.put("image", imageUrl);
             }
         }
-        //links
+        // links
         Elements links = doc.select("a[href]");
         for (Element link : links) {
             // add valid urls only
