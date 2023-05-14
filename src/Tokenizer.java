@@ -88,7 +88,7 @@ public class Tokenizer {
         return tokensMap;
     }
 
-    private static List<String> tokenizeText(String text) {
+    public static List<String> tokenizeText(String text) {
         // Split the text into tokens using whitespace and punctuation as delimiters
         String[] words = text.split("[\\s\\p{Punct}]+");
 

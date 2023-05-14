@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
 public class StopWordsRemoval {
     private static List<String> stopWords = new ArrayList<>();
 
@@ -19,11 +18,9 @@ public class StopWordsRemoval {
         }
     }
 
-
-
-    public static Map<String,List<String>> removeStopWords(Map<String,List<String>> tokenizedDocument) {
+    public static Map<String, List<String>> removeStopWords(Map<String, List<String>> tokenizedDocument) {
         loadStopWords();
-        Map<String,List<String>> filteredDocument = new HashMap<>();
+        Map<String, List<String>> filteredDocument = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : tokenizedDocument.entrySet()) {
             String key = entry.getKey();
             List<String> tokens = entry.getValue();
@@ -34,6 +31,7 @@ public class StopWordsRemoval {
     }
 
     public static List<String> removeStopWordsFromTokens(List<String> tokens) {
+        loadStopWords();
         List<String> filteredTokens = new ArrayList<>();
         for (String token : tokens) {
             if (!stopWords.contains(token)) {
@@ -42,6 +40,5 @@ public class StopWordsRemoval {
         }
         return filteredTokens;
     }
- 
-    
+
 }

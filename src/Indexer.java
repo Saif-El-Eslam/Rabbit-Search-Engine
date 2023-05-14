@@ -233,6 +233,11 @@ public class Indexer {
         FindIterable<Document> documents = collection.find();
         // iterate over the documents
         for (Document document : documents) {
+
+            // if the document have the key "idf" then it is already scored
+            if (document.containsKey("idf")) {
+                continue;
+            }
             // get the word
             String word = document.getString("word");
 
@@ -401,12 +406,23 @@ public class Indexer {
 
     }
 
-    String fileNameToUrl(String fileName) {
+    private static String fileNameToUrl(String fileName) {
         String url = fileName.replace(".html", "").replace("%20", " ").replace("%3F", "?").replace("%2F", "/")
                 .replace("%5C", "\\").replace("%7C", "|").replace("%3C", "<").replace("%3E", ">")
                 .replace("%3A", ":").replace("%2A", "*").replace("%22", "\"").replace("_", "/");
         return url;
     }
+
+    // private static Boolean isValidType(String url) {
+    // String[] validTypes = { "html", "htm", "php", "asp", "aspx", "jsp" };
+    // for (String type : validTypes) {
+    // if (url.endsWith(type)) {
+    // return true;
+    // }
+    // }
+    // return false;
+
+    // }
 
     public static void main(String[] args) {
         // Connect to the Database
@@ -418,10 +434,13 @@ public class Indexer {
             System.out.println(count++);
             if (file.isFile()) {
                 if (file.isFile()) {
-                    String url = file.getName();
+                    String name = file.getName();
+                    String url = fileNameToUrl(name);
+                    System.out.println(url);
                     String content = readFileContent(file.getPath());
+
                     // Parse the Documents
-                    Map<String, Object> parsedDocument = parseDocument(url, content);
+                    Map<String, Object> parsedDocument = parseDocument(name, content);
                     // Tokenize the Documents
                     Map<String, List<String>> tokenizedDocument = tokenize(parsedDocument);
                     // Remove Stop Words from the Documents
@@ -430,12 +449,6 @@ public class Indexer {
                     Map<String, List<String>> stemmedDocument = stemTokens(filteredDocument);
                     // add the document to the inverted index
                     addDocumentToInvertedIndex(stemmedDocument);
-                    url = url.replace(".html", "").replace("%20", " ").replace("%3F",
-                            "?").replace("%2F", "/")
-                            .replace("%5C", "\\").replace("%7C", "|").replace("%3C", "<").replace("%3E",
-                                    ">")
-                            .replace("%3A", ":").replace("%2A", "*").replace("%22", "\"").replace("_",
-                                    "/");
                     // save the url and content to the database
                     saveDocumentToDatabase(url, content);
 
