@@ -1,0 +1,33 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+//import "./index.css";
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+const websites = [
+  {
+    id: 0,
+    title: 'Google',
+    linkTitle: ' https://en.wikipedia.org/wiki/Google',
+    content:
+      'Google LLC is an American multinational technology company focusing on online advertising, search engine technology, cloud computing,computer software, ...',
+  },
+  {
+    id: 1,
+    title: 'Youtube Data API',
+    linkTitle: 'https://developers.google.com/youtube/v3',
+    content:
+      'Add YouTube features to your application, including the ability to upload videos, create and manage playlists, and more.',
+  },
+];
+
+root.render(
+  <React.StrictMode>
+    <App props={websites} />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
