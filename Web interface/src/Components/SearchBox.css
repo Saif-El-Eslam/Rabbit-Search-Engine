@@ -1,0 +1,21 @@
+.SearchBox{
+    height: 100px;
+    left: 0;
+    /* position: inherit; */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-bottom: 25px;
+    padding-top: 10px;
+    border-bottom: 1px solid black;
+}
+
+img{
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+img:hover{
+    cursor: pointer;
+}
+
