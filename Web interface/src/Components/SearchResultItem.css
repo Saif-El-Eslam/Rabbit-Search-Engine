@@ -1,0 +1,38 @@
+.item{
+    width:55%;
+    margin: 40px 200px 40px;
+}
+
+.webTitle{
+    margin-bottom: 7px;
+    font-weight: normal;
+    color: blue;
+    font-size: x-large;
+}
+
+.webTitle:hover{
+    text-decoration: underline;
+    text-decoration-color: blue;
+}
+
+
+.webLink{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+a{
+    text-decoration: none;
+}
+
+.linkName{
+    color:darkgray;
+    font-size: smaller;
+    font-weight: lighter;
+}
+
+.webContent{
+    margin-top: 7px;
+    font-weight: lighter;
+    color: #616161;
+}

@@ -1,0 +1,37 @@
+input{
+    width: 600px;
+    height: 50px;
+    padding-inline: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.282);
+    border-radius: 25px;
+    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: medium;
+}
+
+.myButton{
+    width: max-content;
+    height: 30px;
+    font-size: large;
+    color: aliceblue;
+    margin: 35px;
+    /* background-color: #ede6df; */
+    background-color: rgb(34, 89, 119);
+    font-weight:bold;
+    font-family:'Times New Roman', Times, serif;
+    border-radius: 5px;
+    border-color: rgba(187, 187, 187, 0.681);
+    box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
+}
+
+.myButton:hover{
+    background: #b7b7b7; 
+    cursor: pointer;
+}
+
+.myButton:active{
+    /* background: rgb(50,86,193); */
+    background-color: #153549;
+}
+
