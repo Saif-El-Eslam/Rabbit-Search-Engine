@@ -5,12 +5,8 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.model.Indexes;
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Accumulators;
+import java.util.Collections;
+import com.mongodb.client.FindIterable;
 
 import org.bson.Document;
 import java.util.List;
@@ -18,13 +14,10 @@ import java.util.Map;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.io.IOException;
 //Collections
-import java.util.Collections;
-import com.mongodb.client.FindIterable;
 
 public class Indexer {
 
@@ -39,7 +32,7 @@ public class Indexer {
         // Connect to the MongoDB Server
         mongoClient = new MongoClient("localhost", 27017);
         // Connect to the Database
-        database = mongoClient.getDatabase("SearchEngine");
+        database = mongoClient.getDatabase("searchEngine");
         // Get the Inverted Index Collection
         invertedIndex = database.getCollection("InvertedIndex");
     }
@@ -104,19 +97,7 @@ public class Indexer {
     // output: a list of tokens with their documents and positions
     // fill the invertedIndexMap
     public static void addDocumentToInvertedIndex(Map<String, List<String>> stemmedDocument) {
-        // get words positions in a stemmed document
-        // input : Map<String, List<String>> stemmedDocument
-        // output:
-        // word1:title(3),paragraph(15),meta(1),header h1(1),header h2(1),header
-        // h3(1),header h4(1),header h5(1),header h6(1),tf(5),idf(0.5),tf-idf(2.5)
-        // word2:title(3),paragraph(15),meta(1),header h1(1),header h2(1),header
-        // h3(1),header h4(1),header h5(1),header h6(1),tf(5),idf(0.5),tf-idf(2.5)
-        // word3:title(3),paragraph(15),meta(1),header h1(1),header h2(1),header
-        // h3(1),header h4(1),header h5(1),header h6(1),tf(5),idf(0.5),tf-idf(2.5)
-        // number between brackets is the frequency of the word in the document or count
-        // of the word in the document
-        // drop the image and link key of the stemmedDocument map
-        // create copy of the stemmedDocument map
+
         Map<String, List<String>> stemmedDocumentCopy = new HashMap<>();
         stemmedDocumentCopy.putAll(stemmedDocument);
         // remove the image and link key from the stemmedDocumentCopy map
@@ -133,17 +114,6 @@ public class Indexer {
         wordPositions = convertStringToDictionary(word);
         // save to database
         saveToDatabase(wordPositions);
-        // TODO: till now each document is saved in the database as a separate document
-        // SEE DATABASE FOR MORE DETAILS
-        // calculate score for each document and save it in the database invertedIndex
-        // collection
-        // example:
-        // word1:{"url1": 0.5, "url2": 0.3, "url3": 0.2}
-        // explanation: word1 has a score of 0.5 in url1, 0.3 in url2 and 0.2 in url3
-        // should the scores added up to 1? or should we calculate the score for each
-        // document separately?
-        // answer: calculate the score for each document separately
-
     }
 
     // ********************************Database********************************
@@ -413,16 +383,22 @@ public class Indexer {
         return url;
     }
 
-    // private static Boolean isValidType(String url) {
-    // String[] validTypes = { "html", "htm", "php", "asp", "aspx", "jsp" };
-    // for (String type : validTypes) {
-    // if (url.endsWith(type)) {
-    // return true;
-    // }
-    // }
-    // return false;
+    public static void cleanDataBase() {
+        // Connect to the Database
+        connectToDatabase();
+        // get the collection
+        MongoCollection<Document> collection = database.getCollection("invertedIndex");
+        // get all the documents
+        FindIterable<Document> documents = collection.find();
+        // iterate over the documents and delete them
+        for (Document document : documents) {
+            String word = document.getString("word");
+            Double idf = document.getDouble("idf");
 
-    // }
+        }
+        // close the connection
+        closeDatabaseConnection();
+    }
 
     public static void main(String[] args) {
         // Connect to the Database
@@ -467,6 +443,7 @@ public class Indexer {
         // }
         // Close the Database Connection
         closeDatabaseConnection();
+        cleanDataBase();
 
     }
 

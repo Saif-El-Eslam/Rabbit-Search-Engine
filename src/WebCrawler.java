@@ -120,16 +120,7 @@ public class WebCrawler implements Runnable {
         try {
             URL urlObject = new URL(url);
             String fileName = urlObject.getHost() + urlObject.getPath();
-            // replace space with %20
-            // replace ? with %3F
-            // replace / with %2F
-            // replace \ with %5C
-            // replace | with %7C
-            // replace < with %3C
-            // replace > with %3E
-            // replace : with %3A
-            // replace * with %2A
-            // replace " with %22
+
             fileName = fileName.replace(" ", "%20").replace("?", "%3F").replace("/", "_").replace("\\", "%5C")
                     .replace("|", "%7C").replace("<", "%3C").replace(">", "%3E").replace(":", "%3A").replace("*", "%2A")
                     .replace("\"", "%22");
