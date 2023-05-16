@@ -56,4 +56,10 @@ public class DBManager {
         mongoClient.close();
     }
 
+    // getDocument
+    public static Document getDocument(MongoCollection<Document> collection, String key, String value) {
+        Document document = collection.find(Filters.eq(key, value)).first();
+        return document;
+    }
+
 }
