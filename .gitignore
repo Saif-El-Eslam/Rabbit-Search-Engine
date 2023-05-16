@@ -3,3 +3,7 @@ data/
 pages/
 # output.txt
 output.txt
+# node_modules
+GUI/rabbit-search-engine/node_modules/
+Web interface/node_modules/
+node_modules/
