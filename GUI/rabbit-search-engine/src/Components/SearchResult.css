@@ -1,0 +1,19 @@
+.search-result {
+  margin-bottom: 20px;
+}
+
+.search-result__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a0dab;
+  text-decoration: none;
+}
+
+.search-result__url {
+  color: #006621;
+  margin-bottom: 5px;
+}
+
+.search-result__description {
+  color: #545454;
+}

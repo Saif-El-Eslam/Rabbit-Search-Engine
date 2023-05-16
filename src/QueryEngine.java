@@ -19,45 +19,56 @@ public class QueryEngine {
 
     MongoClient mongoClient;
 
-    public static List<Object> search(String query, String sortBy) {
+    public static List<Object> search(String query) {
         // Phrase search
+        List<String> tokens = null;
         List<Object> results = null;
         if (query.contains("\"")) {
-            System.out.println("Phrase search");
-            // remove the quotes from the query
+            // Phrase search
             query = query.replace("\"", "");
             QueryProcessor queryProcessor = new QueryProcessor();
-            results = queryProcessor.processQuery(query); // This is the list of documents that contain the
-            System.out.println(results.size());
+            tokens = queryProcessor.processQuery(query); // This is the list of documents that contain
+            // Ranking
+            Ranker ranker = new Ranker();
+            results = ranker.rank(tokens);
             List<Object> newResults = new ArrayList<Object>();
             for (int i = 0; i < results.size(); i++) {
                 Document doc = (Document) results.get(i);
                 String content = doc.getString("content");
                 if (content.contains(query)) {
-                    System.out.println("Found");
+                    // System.out.println("Found");
                     newResults.add(doc);
-                } else {
-                    System.out.println("Not found");
-
                 }
             }
-            results = newResults;
 
         } else {
+            // Query search
             QueryProcessor queryProcessor = new QueryProcessor();
-            results = queryProcessor.processQuery(query); // This is the list of documents that contain the
-            System.out.println("Query search");
+            tokens = queryProcessor.processQuery(query); // This is the list of documents that contain
+            // Ranking
+            Ranker ranker = new Ranker();
+            results = ranker.rank(tokens);
         }
-        // Collections.sort(results, new SortByScore()); // sort by popularity,
-        // relevance(score)
+        // remove the content from the results
+        for (int i = 0; i < results.size(); i++) {
+            Document doc = (Document) results.get(i);
+            doc.remove("content");
+            doc.remove("popularity");
+            doc.remove("score");
+        }
         return results;
     }
 
     public static void main(String[] args) {
-        List<Object> results = search("this article", "score");
-        // print size of results
-        System.out.println(results.size());
-        // TODO: Ranking
+        String query = "java programming";
+
+        List<Object> results = search(query);
+        for (Object result : results) {
+            Document doc = (Document) result;
+            // pring url and score
+            System.out.println(doc.getString("url") + " " + doc.getDouble("score"));
+            System.out.println(doc.getString("popularity"));
+        }
     }
 
 }

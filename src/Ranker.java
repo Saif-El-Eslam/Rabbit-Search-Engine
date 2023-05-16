@@ -1,125 +1,111 @@
+
+import java.util.List;
+
+import javax.print.Doc;
+
 import com.mongodb.MongoClient;
+
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import java.util.Collections;
 import com.mongodb.client.FindIterable;
+// Document 
 import org.bson.Document;
-
-import java.util.Iterator;
-import java.util.stream.StreamSupport;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.lang.System.*;
-
-class URL {
-    public String url;
-    public int score;
-
-    URL(String u, int s) {
-        url = u;
-        score = s;
-    }
-}
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Ranker {
-    // public HashMap<String, ArrayList<singleURL>> allData;
-    // public HashMap<String, URLWordsAndSentences> URLS;
-    public String queryString;
+    private static MongoClient mongoClient;
 
-    private static MongoClient mongoClient; // The MongoDB Client
-    private static MongoDatabase database; // The MongoDB Database
-    private static Map<String, String> documentsMap; // The Documents Map
-    private static Map<String, List<Document>> invertedIndexMap; // The Inverted Index
-    private static MongoCollection<Document> invertedIndex; // The MongoDB Collection
-    // *************************Database Connection****************************
-
-    public void connectToDatabase() {
-        try {
-            // Connect to the MongoDB Server
-            mongoClient = new MongoClient("localhost", 27017);
-            // Connect to the Database
-            database = mongoClient.getDatabase("SearchEngine");
-            // Get the Inverted Index Collection
-            invertedIndex = database.getCollection("InvertedIndex");
-            System.out.println("Connected to database: " + database.getName());
-        } catch (Exception e) {
-            System.err.println("Error connecting to MongoDB server: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public Iterator<Document> getDocumentsByWord(String word) {
-        // Create a query to find documents that contain the given word
-        Document query = new Document("word", word);
-
-        // Find the documents that match the query
-        Iterator<Document> iterator = invertedIndex.find(query).iterator();
-
-        // Extract the "documents" field from the matching documents and return an
-        // iterator to them
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
-                .flatMap(doc -> doc.getList("documents", Document.class).stream())
-                .iterator();
-    }
-
-    public Map<String, Double> getSortedURLS() {
-        Map<String, Double> URLsWithScores = new HashMap<>();
-
-        String[] myArray = this.queryString.split(" ");
-        // for(String word : myArray)
-        // {System.out.println(word);}
-        for (String word : myArray) {
-            System.out.println(word);
-            int c = 0;
-            Iterator<Document> iterator = getDocumentsByWord(word);
-            while (iterator.hasNext()) {
-                c++;
-                Document document = iterator.next();
-                String urlString = document.getString("url");
-                Double score = Double.parseDouble(document.getString("score"));
-
-                if (URLsWithScores.containsKey(urlString)) {
-                    // If it does, add score to the url score
-                    URLsWithScores.put(urlString, URLsWithScores.get(urlString) + score);
-                } else {
-                    // If it doesn't, create a new key-value pair
-                    URLsWithScores.put(urlString, score);
-                }
-                // System.out.println(document.toJson()+"\n");
+    // sort
+    public static List<Object> sort(List<Object> results) {
+        Collections.sort(results, new Comparator<Object>() {
+            // sort according to score
+            @Override
+            public int compare(Object o1, Object o2) {
+                return ((Document) o2).getDouble("score").compareTo(((Document) o1).getDouble("score"));
             }
-        }
 
-        // Create a TreeMap with a custom comparator that sorts the entries based on
-        // their value in descending order
-        Map<String, Double> sortedURLsWithScores = new TreeMap<>(new Comparator<String>() {
-            public int compare(String url1, String url2) {
-                return Double.compare(URLsWithScores.get(url2), URLsWithScores.get(url1));
-            }
         });
-
-        // Add the entries of the HashMap to the TreeMap to sort them based on their
-        // scores
-        sortedURLsWithScores.putAll(URLsWithScores);
-        return sortedURLsWithScores;
+        return results;
     }
 
-    Ranker(String query) {
-        queryString = query;
-        connectToDatabase();
+    public static List<Object> rank(List<String> stemmedTokens) {
+        List<Object> results = new ArrayList<Object>();
 
-    }
+        DBManager dbManager = new DBManager();
+        mongoClient = dbManager.connectToDatabase();
+        MongoDatabase database = dbManager.getDatabase(mongoClient, "searchEngine");
+        MongoCollection<Document> invertedIndex = dbManager.getCollection(database,
+                "invertedIndex");
+        MongoCollection<Document> documents = dbManager.getCollection(database,
+                "documents");
+        // get documents that contain the first token
+        for (String token : stemmedTokens) {
+            System.out.println(token);
+            // word = token
+            // get the document that contains the word
+            Document document = invertedIndex.find(Filters.eq("word", token)).first();
+            if (document == null) {
+                continue;
+            }
+            // get the documents in the document
+            List<Document> documentsList = (List<Document>) document.get("documents");
 
-    public static void main(String[] args) throws Exception {
-        Ranker ranker = new Ranker("inform nation ");
-        Map<String, Double> rankedURLS = ranker.getSortedURLS();
-        for (String url : rankedURLS.keySet()) {
-            double score = rankedURLS.get(url);
-            System.out.println(url + ":" + score);
+            for (Document doc : documentsList) {
+                // get the documents from the documents collection that have the same url
+                Document documentContent = dbManager.getDocument(documents, "url",
+                        doc.get("url").toString());
+                if (documentContent == null) {
+                    continue;
+                }
+                // if popularity is null, skip the document
+                if (documentContent.get("popularity") == null) {
+                    continue;
+                }
+
+                double popularity = Double.parseDouble(documentContent.get("popularity").toString()) / 100;
+                if (results.contains(documentContent)) {
+                    // update the score
+                    // get the document from the results
+                    Document docInResults = (Document) results.get(results.indexOf(documentContent));
+                    // get the score
+                    double score = docInResults.getDouble("score");
+                    // update the score
+                    docInResults.put("score", score + (double) doc.get("score") * popularity);
+                    // update the document in the results
+                    results.set(results.indexOf(documentContent), docInResults);
+                } else {
+                    // add the document to the results
+                    double newScore = popularity * (double) doc.get("score");
+                    documentContent.put("score", newScore);
+                    results.add(documentContent);
+                }
+
+            }
         }
-        System.out.println("lol LOOL");
+
+        // sort the results
+        results = sort(results);
+        return results;
     }
-    // (score1 + score2) * pop/100
+
+    public static void main(String[] args) {
+        List<String> stemmedTokens = new ArrayList<String>();
+        stemmedTokens.add("inform");
+        stemmedTokens.add("nation");
+        List<Object> results = rank(stemmedTokens);
+        int count = 0;
+        for (Object doc : results) {
+            System.out.println(((Document) doc).get("url") + " " + ((Document) doc).get("score"));
+            count++;
+            if (count == 5) {
+                break;
+            }
+        }
+    }
+
 }
