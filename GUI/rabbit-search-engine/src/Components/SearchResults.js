@@ -2,9 +2,7 @@
 import React, { useState, useEffect } from "react";
 import SearchResult from "./SearchResult";
 import "./SearchResults.css";
-//axios
 import axios from "axios";
-//fontawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faForward, faBackward } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
@@ -13,17 +11,19 @@ function SearchResults({ query }) {
   const [searchQuery, setSearchQuery] = useState(""); // "hello world
   const [results, setResults] = useState([]);
 
+  const [timeTaken, setTimeTaken] = useState(0);
+
   // const numOfPages = Math.ceil(results.length / 10);
   const [numOfPages, setNumOfPages] = useState(0);
   const [page, setPage] = useState(1);
   const [curentPages, setCurrentPages] = useState(results.slice(0, 10));
-  const handlenextPage = () => {
+  const handlenextPage = (e) => {
     if (page < numOfPages) {
       setPage(page + 1);
       setCurrentPages(results.slice(page * 10, page * 10 + 10));
     }
   };
-  const handlePrevPage = () => {
+  const handlePrevPage = (e) => {
     if (page > 1) {
       setPage(page - 1);
       setCurrentPages(results.slice((page - 2) * 10, (page - 2) * 10 + 10));
@@ -39,6 +39,9 @@ function SearchResults({ query }) {
 
     setSearchQuery(q);
     // send qwery to server in the body of the request
+    // time
+    const start = new Date().getTime();
+
     axios
       .post("http://localhost:8080", q)
       .then((res) => {
@@ -48,6 +51,8 @@ function SearchResults({ query }) {
         setCurrentPages(jsonData.slice(0, 10));
         setNumOfPages(Math.ceil(jsonData.length / 10));
         setPage(1);
+        const end = new Date().getTime();
+        setTimeTaken(end - start);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -61,6 +66,7 @@ function SearchResults({ query }) {
       `http://localhost:3000/search?query=${searchQuery}`
     );
     // send qwery to server in the body of the request
+    const start = new Date().getTime();
     axios
       .post("http://localhost:8080", searchQuery)
       .then((res) => {
@@ -69,7 +75,9 @@ function SearchResults({ query }) {
         setCurrentPages(jsonData.slice(0, 10));
         setNumOfPages(Math.ceil(jsonData.length / 10));
         setPage(1);
-        console.log("jsonData", jsonData);
+        // console.log("jsonData", jsonData);
+        const end = new Date().getTime();
+        setTimeTaken(end - start);
       })
       .catch((err) => console.log(err));
   };
@@ -119,6 +127,12 @@ function SearchResults({ query }) {
       </div>
 
       <div className="results-container">
+        <div className="results-info">
+          <p>
+            About {results.length} results ({timeTaken / 1000} seconds)
+          </p>
+        </div>
+
         <div className="search-results-list">
           {curentPages.map((result) => (
             <SearchResult key={result.id} result={result} query={searchQuery} />
