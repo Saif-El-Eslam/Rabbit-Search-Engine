@@ -57,5 +57,19 @@ If you are using maven, you can add the libraries by adding the following lines 
     }
    ]
    }
-
    ```
+
+3. Search Engine
+
+```
+cd GUI/rabbit-search-engine
+npm install
+npm start
+```
+
+4. backend server
+
+run the SearchServer.java file and the the QuerySuggestions.java file to start the server
+
+SeachServer.java file will start the server on port 8080
+QuerySuggestions.java file will start the server on port 8000

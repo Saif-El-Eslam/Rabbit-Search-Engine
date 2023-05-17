@@ -10,6 +10,11 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+// URL
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.DataOutputStream;
+
 public class SearchServer {
     private List<Object> results;
 
@@ -43,6 +48,9 @@ public class SearchServer {
             // Perform the search with the extracted query
             performSearch(query);
             System.out.println("Search performed for query: " + query);
+            // send a post request to the server (8000/suggestion) with the query as the
+            // body
+            sendPostRequest(query);
 
             // Convert the results to a string representation
             String response = results.toString();
@@ -56,6 +64,41 @@ public class SearchServer {
             // print the response
             // System.out.println(response);
             System.out.println("Response sent");
+        }
+
+        public static void sendPostRequest(String query) throws IOException {
+            String url = "http://localhost:8000/suggestion";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            // Set the request method to POST
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            // Set the request body
+            // convert the query to string
+            String requestBody = query + "";
+
+            // Enable output for sending the request body
+            con.setDoOutput(true);
+            OutputStream os = con.getOutputStream();
+            os.write(requestBody.getBytes());
+            os.flush();
+            os.close();
+
+            // Get the response
+            int responseCode = con.getResponseCode();
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // Print the response
+            System.out.println("Response Code: " + responseCode);
+            System.out.println("Response Body: " + response.toString());
         }
 
         // Extracts the query string from the request body

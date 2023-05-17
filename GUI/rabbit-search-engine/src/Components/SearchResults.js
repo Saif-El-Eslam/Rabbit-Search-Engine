@@ -10,8 +10,8 @@ import { Link } from "react-router-dom";
 function SearchResults({ query }) {
   const [searchQuery, setSearchQuery] = useState(""); // "hello world
   const [results, setResults] = useState([]);
-
   const [timeTaken, setTimeTaken] = useState(0);
+  const [suggestions, setSuggestions] = useState([]);
 
   // const numOfPages = Math.ceil(results.length / 10);
   const [numOfPages, setNumOfPages] = useState(0);
@@ -38,8 +38,6 @@ function SearchResults({ query }) {
       .replace(/%22/g, '"');
 
     setSearchQuery(q);
-    // send qwery to server in the body of the request
-    // time
     const start = new Date().getTime();
 
     axios
@@ -83,7 +81,6 @@ function SearchResults({ query }) {
   };
 
   const parseResponse = (response) => {
-    //_id,url,title,description,keywords
     const regex =
       /Document{{_id=(.*?), url=(.*?), title=(.*?), keywords=(.*?), description=(.*?)}}/g;
     const matches = response.matchAll(regex);
@@ -100,8 +97,21 @@ function SearchResults({ query }) {
       //remove empty keywords
       doc.keywords = doc.keywords.filter((keyword) => keyword !== "");
     });
-
     return jsonData;
+  };
+
+  const handleTyping = (value) => {
+    setSearchQuery(value);
+    if (value.length > 0) {
+      axios
+        .get(`http://localhost:8000/suggestions/${value}`)
+        .then((res) => {
+          setSuggestions(res.data.slice(1, -1).split(","));
+        })
+        .catch((err) => console.log(err));
+    } else {
+      setSuggestions([]);
+    }
   };
 
   return (
@@ -118,8 +128,30 @@ function SearchResults({ query }) {
             className="search-input"
             placeholder="Search Rabbit"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleTyping(e.target.value)}
           />
+          <div className="suggestions">
+            {suggestions.slice(0, 10).map((suggestion) => (
+              <p
+                className="suggestion"
+                onClick={() => {
+                  setSearchQuery(suggestion);
+                  setSuggestions([]);
+                  //redirect to search results page
+                  window.history.pushState(
+                    {},
+                    null,
+                    `http://localhost:3000/search?query=${suggestion}`
+                  );
+                  // reload the page
+                  window.location.reload();
+                }}
+              >
+                {suggestion}
+              </p>
+            ))}
+          </div>
+
           <button type="submit" className="search-button">
             Search
           </button>
