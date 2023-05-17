@@ -7,13 +7,54 @@
   font-weight: 600;
   color: #1a0dab;
   text-decoration: none;
+  margin-bottom: 0;
+  margin-top: -20px;
+}
+.search-result__title:hover {
+  color: #ff6600;
 }
 
 .search-result__url {
-  color: #006621;
-  margin-bottom: 5px;
+  color: #945400;
+  font-size: 14px;
+  margin-bottom: 10px;
+  margin-top: 0px;
 }
 
 .search-result__description {
   color: #545454;
+  max-width: 500px;
+  /* make it aliged to the left */
+  text-align: justify;
+  text-justify: inter-word;
+  /* make it aliged to the left */
+  margin-bottom: 0;
+  margin-top: -10px;
+}
+.search-result__keywords {
+  color: #545454;
+}
+.search-result__keyword {
+  color: #545454;
+  font-weight: 600;
+  /* box around */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0 3px;
+  margin: 0 3px;
+  /*clickable*/
+  cursor: pointer;
+}
+.search-result__keyword:hover {
+  color: #1a0dab;
+  border: 1px solid #1a0dab;
+}
+
+.highlight {
+  /* bold */
+  font-weight: 700;
+  /* white background */
+  background-color: #ffffff;
+  /*decorative line*/
+  text-decoration: wavy;
 }

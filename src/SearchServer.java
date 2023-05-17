@@ -42,15 +42,20 @@ public class SearchServer {
 
             // Perform the search with the extracted query
             performSearch(query);
+            System.out.println("Search performed for query: " + query);
 
             // Convert the results to a string representation
             String response = results.toString();
 
             // Set the response headers and send the response
+            setCorsHeaders(exchange);
             exchange.sendResponseHeaders(200, response.getBytes().length);
             OutputStream output = exchange.getResponseBody();
             output.write(response.getBytes());
             output.close();
+            // print the response
+            // System.out.println(response);
+            System.out.println("Response sent");
         }
 
         // Extracts the query string from the request body
@@ -82,6 +87,14 @@ public class SearchServer {
             exchange.sendResponseHeaders(200, 0);
             exchange.close();
         }
+    }
+
+    // Set CORS headers for the given exchange
+    private void setCorsHeaders(HttpExchange exchange) {
+        Headers headers = exchange.getResponseHeaders();
+        headers.set("Access-Control-Allow-Origin", "*");
+        headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        headers.set("Access-Control-Allow-Headers", "Content-Type");
     }
 
     public static void main(String[] args) throws IOException {

@@ -11,12 +11,14 @@ const FrontPage = () => {
 
   return (
     <div className="google-container">
-      <div className="google-logo"></div>
+      <div className="google-logo">
+        <img src="https://cdn.zapier.com/storage/photos/39bb341a5ebd1e27548b597a555d0bae.png" />
+      </div>
       <div className="google-search">
         <input
           type="text"
           className="search-input"
-          placeholder="Search Google"
+          placeholder="Search Rabbit"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

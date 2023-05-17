@@ -87,9 +87,9 @@ public class Ranker {
 
             }
         }
-
         // sort the results
         results = sort(results);
+
         return results;
     }
 
